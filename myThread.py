@@ -24,36 +24,60 @@ class myThread(threading.Thread):
 
         while (True):
             self.shared.lock.acquire()
+
             if (len(self.shared.hostnames) < 1):
                 self.shared.lock.release()
                 break
 
-            mysocket = TCPsocket()  # create an object of TCP socket
-            mysocket.createSocket()
-
             p = URLparse()
             url = self.shared.hostnames.pop(0)
+            # shared.qsize = len(shared.hostnames)
+            print ("Current size of queue:", self.shared.qsize)
+            self.shared.qsize -=1
+
+            self.shared.lock.release()
+
+            #urlsplit
             host, path, query, port = p.parse(url)
             # print ('port:', port)
 
+            mysocket = TCPsocket()  # create an object of TCP socket
+            mysocket.createSocket()
+
+            self.shared.lock.acquire()
             # Check uniqueness host
             unique_status1 = checkUniqueness_host(self.shared.unique_host, host)
 
             if not unique_status1:
+                self.shared.lock.release()
                 continue
+            else:
+                self.shared.countUnique_host += 1
+            self.shared.lock.release()
 
             # Resolve Ip address using dns
             ip = mysocket.getIP(host)
 
+            if ip:
+                self.shared.dns_count +=1
+
+            self.shared.lock.acquire()
             # Check uniqueness IP
             unique_status = checkUniqueness_ip(self.shared.unique_ips, ip)
 
             if not unique_status:
+                self.shared.lock.release()
                 continue
+            else:
+                self.shared.countUnique_ips +=1
 
+            self.shared.lock.release()
+
+
+            self.shared.lock.acquire()
             start = time.time()
             mysocket.connect(ip, port)
-            print('Connecting on Robots..', (time.time() - start) * 1000, 'ms')
+            #print('Connecting on Robots..', (time.time() - start) * 1000, 'ms')
 
             # build our HEAD request for robots
             myrequest = Request()
@@ -69,16 +93,18 @@ class myThread(threading.Thread):
                 self.shared.lock.release()
                 continue
             x = data.split()
-            print("Verifying header...status Code: ", x[1])
+            #print("Verifying header...status Code: ", x[1])
             mysocket.close()
 
             if (x[1] != '200'):
+
+                self.shared.count_crawl +=1
 
                 mysocket = TCPsocket()  # create an object of TCP socket
                 mysocket.createSocket()
                 start = time.time()
                 mysocket.connect(ip, port)
-                print('Connecting on  page..', (time.time() - start) * 1000, 'ms')
+                #print('Connecting on  page..', (time.time() - start) * 1000, 'ms')
 
                 # build our GET request
                 myrequest = Request()
@@ -89,24 +115,32 @@ class myThread(threading.Thread):
                 data = mysocket.receive()  # receive a reply from the server
                 # print('Response content length: ', len(data), '`')
 
-                x = data.split()
-                print("Verifying header...status Code: ", x[1])
+                # x = data.split()
+                # print("Verifying header...status Code: ", x[1])
+                #
+                #
+                # r = requests.get(url)
+                # start = time.time()
+                #
+                #
+                # soup = BeautifulSoup(r.text, "html.parser")
+                #
+                # try:
+                #     for link in soup.find_all('a'):
+                #         self.shared.count_link += 1
+                # except AttributeError:
+                #     continue
+                # # print('Parsing Page... Done in ', (time.time() - start) * 1000, 'ms', 'with', self.shared.count_link, 'links')
 
 
-                r = requests.get(url)
-                start = time.time()
+            else:
+                self.shared.count_robot += 1
 
-
-                soup = BeautifulSoup(r.text, "html.parser")
-                count = 0
-                try:
-                    for link in soup.find_all('a'):
-                        count += 1
-                except AttributeError:
-                    continue
-                print('Parsing Page... Done in ', (time.time() - start) * 1000, 'ms', 'with', count, 'links')
             print("-------------------------------------------------------------------------------------------")
-
             mysocket.close()
+
             self.shared.lock.release()
+
+            # time.sleep(2)
+
 

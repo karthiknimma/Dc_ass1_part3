@@ -28,31 +28,40 @@ def main():
     print("Size of file is :", file, "bytes")
     print("\n")
 
-    # shared parameters
     shared = sharedParameters()
-    shared.lock = threading.Lock()
-    shared.countUnique_ips = 0
-    shared.unique_ips = set()
-    shared.unique_host = set()
-    # shared.hostnames = None
-
     filename = "URL-input-100.txt"
     Q = []
+
+    startT = time.time()
     shared.hostnames = AddtoQ(filename, Q)
-    print(shared.hostnames)
+    print("Queue size", len(shared.hostnames))
+    #print(shared.hostnames)
 
     listOfThreads = []  # empty list
-    num_threads = 5
+    num_threads = 10
+
+    # shared parameters
+    shared.lock = threading.Lock()
+    # shared.countUnique_ips = 0
+    shared.unique_ips = set()
+    shared.unique_host = set()
+    shared.qsize = len(shared.hostnames)
+
 
     for i in range(num_threads):
-        worker = myThread.myThread(i + 1, shared)
-        worker.start()
-        listOfThreads.append(worker)
-        for t in listOfThreads:
-            t.join()  # wait for each thread to finish
+            worker = myThread.myThread(i + 1, shared)
+            worker.start()
+            listOfThreads.append(worker)
+    for t in listOfThreads:
+        t.join()  # wait for each thread to finish
 
-    print("Number of uniques", shared.countUnique_ips)
-    print("Number of uniques", shared.countUnique_host)
+
+    print('Number of crawled URLS', shared.count_crawl)
+    print('Number of URLs that have passed robots checks', shared.count_robot)
+    print("Number of uniques ips", shared.countUnique_ips)
+    print("Number of uniques host", shared.countUnique_host)
+    print("Number of Sucessful DNS lookups", shared.dns_count)
+    # print('Total links found', shared.count_link)
 
 def checkUniqueness_ip(list_ips, ip):
     size = [1, 1]
@@ -98,6 +107,11 @@ class sharedParameters:
         self.hostnames = None
         self.unique_ips = None
         self.unique_host = None
+        self.count_link = 0
+        self.count_crawl = 0
+        self.count_robot = 0
+        self.qsize = 0
+        self.dns_count = 0
 
 # call main() method:
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 import socket, select
 import time
 
-TIMEOUT = 10 # unit is seconds
+TIMEOUT = 3 # unit is seconds
 BUF_SIZE = 1024 # unit is bytes
 
 class TCPsocket:
@@ -22,12 +22,14 @@ class TCPsocket:
 
     def getIP(self, hostname):
         self.host = hostname
+        # self.sock.settimeout(TIMEOUT)
+
         try:
             start = time.time()
             ip = socket.gethostbyname(hostname)   # ip is a local variable to getIP(hostname), ip is of string type
-            print('Doing DNS. Done in..',(time.time()-start)*1000,'ms')
+           # print('Doing DNS. Done in..',(time.time()-start)*1000,'ms')
         except socket.gaierror:
-            print("Failed to gethostbyname")
+            #print("Failed to gethostbyname")
             return None
         return ip
 
@@ -37,11 +39,14 @@ class TCPsocket:
         if self.sock is None or ip is None:
             self.sock = None
             return
+
+        # self.sock.settimeout(TIMEOUT)
+
         try:
             self.sock.connect((ip, port))   # server address is defined by (ip, port)
-            print("Successfully connect to host:", ip)
+            #print("Successfully connect to host:", ip)
         except socket.error as e:
-            print("Failed to connect: {}".format(e))
+            #print("Failed to connect: {}".format(e))
             self.sock.close()
             self.sock = None
 
@@ -53,7 +58,7 @@ class TCPsocket:
         try:
             bytesSent = self.sock.sendall(request.encode())   # encode(): convert string to bytes
         except socket.error as e:
-            print("socket error in send: {}".format(e))
+           # print("socket error in send: {}".format(e))
             self.sock.close()
             self.sock = None
         return bytesSent
@@ -76,9 +81,9 @@ class TCPsocket:
                 else:
                    reply += data  # append to reply
                    bytesRecd += len(data)
-            print('Loading done in ..', (time.time() - start) * 1000, 'ms', 'with', bytesRecd , 'bytes' )
+           # print('Loading done in ..', (time.time() - start) * 1000, 'ms', 'with', bytesRecd , 'bytes' )
         except socket.error as e:
-            print("socket error in receive: {}".format(e))
+           # print("socket error in receive: {}".format(e))
             self.sock.close()
             self.sock = None
         reply_str = reply.decode()

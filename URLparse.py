@@ -10,6 +10,7 @@ class URLparse:
         self.path = ""
 
     def parse(self,url):
+
         o = urlparse(url)
         if(o.netloc) != '':
             self.host = o.netloc
@@ -29,5 +30,5 @@ class URLparse:
         else:
             self.query=''
 
-        print('Parsing URl...host' , self.host , 'Port', self.port)
+       #print('Parsing URl...host' , self.host , 'Port', self.port)
         return self.host, self.path, self.query, self.port
