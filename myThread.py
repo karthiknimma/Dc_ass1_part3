@@ -17,9 +17,10 @@ class myThread(threading.Thread):
         self.threadID = threadID
         self.shared = shared
 
+
     def run(self):
         self.shared.lock.acquire()
-        print("\nStarting thread: ", self.threadID)
+        #print("\nStarting thread: ", self.threadID)
         self.shared.lock.release()
 
         while (True):
@@ -32,7 +33,7 @@ class myThread(threading.Thread):
             p = URLparse()
             url = self.shared.hostnames.pop(0)
             # shared.qsize = len(shared.hostnames)
-            print ("Current size of queue:", self.shared.qsize)
+            #print ("Current size of queue:", self.shared.qsize)
             self.shared.qsize -=1
 
             self.shared.lock.release()
@@ -89,7 +90,7 @@ class myThread(threading.Thread):
             # print('Response content length: ', len(data), '')
 
             if (len(data) == 0):
-                print("-------------------------------------------------------------------")
+               # print("-------------------------------------------------------------------")
                 self.shared.lock.release()
                 continue
             x = data.split()
@@ -115,6 +116,10 @@ class myThread(threading.Thread):
                 data = mysocket.receive()  # receive a reply from the server
                 # print('Response content length: ', len(data), '`')
 
+                self.shared.count_link += data.count("href")
+                # print("Total links found:",self.shared.count_link)
+
+
                 # x = data.split()
                 # print("Verifying header...status Code: ", x[1])
                 #
@@ -136,7 +141,7 @@ class myThread(threading.Thread):
             else:
                 self.shared.count_robot += 1
 
-            print("-------------------------------------------------------------------------------------------")
+           # print("-------------------------------------------------------------------------------------------")
             mysocket.close()
 
             self.shared.lock.release()

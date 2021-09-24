@@ -21,15 +21,15 @@ import myThread
 
 def main():
     # open file
-    Path('URL-input-100.txt').stat()
+    Path('URL-input-1M.txt').stat()
     # getting file size
-    file = Path('URL-input-100.txt').stat().st_size
+    file = Path('URL-input-1M.txt').stat().st_size
     # display the size of the file
     print("Size of file is :", file, "bytes")
     print("\n")
 
     shared = sharedParameters()
-    filename = "URL-input-100.txt"
+    filename = "URL-input-1M.txt"
     Q = []
 
     startT = time.time()
@@ -38,7 +38,7 @@ def main():
     #print(shared.hostnames)
 
     listOfThreads = []  # empty list
-    num_threads = 10
+    num_threads = 5000
 
     # shared parameters
     shared.lock = threading.Lock()
@@ -47,21 +47,31 @@ def main():
     shared.unique_host = set()
     shared.qsize = len(shared.hostnames)
 
-
     for i in range(num_threads):
             worker = myThread.myThread(i + 1, shared)
             worker.start()
             listOfThreads.append(worker)
+    t11= threading.Timer(2.0, printing, args=(shared,) )
+    t11.setDaemon(True)
+    t11.start()
+    time.sleep(3)
+    listOfThreads.append(t11)
+
     for t in listOfThreads:
         t.join()  # wait for each thread to finish
 
-
+    print("Looked up", shared.dns_count , "DNS names")
     print('Number of crawled URLS', shared.count_crawl)
     print('Number of URLs that have passed robots checks', shared.count_robot)
     print("Number of uniques ips", shared.countUnique_ips)
     print("Number of uniques host", shared.countUnique_host)
-    print("Number of Sucessful DNS lookups", shared.dns_count)
-    # print('Total links found', shared.count_link)
+    print('Total links found', shared.count_link)
+
+def printing(shared):
+    while(len(shared.hostnames)>0):
+        print('',threading.active_count()-2,'Q\t',len(shared.hostnames),'E\t',1000000-len(shared.hostnames),'H\t',shared.countUnique_host,'D\t',shared.dns_count,'I\t',shared.countUnique_ips,'R\t',shared.count_robot,'C\t',shared.count_crawl,'L\t',shared.count_link)
+        time.sleep(2)
+
 
 def checkUniqueness_ip(list_ips, ip):
     size = [1, 1]
