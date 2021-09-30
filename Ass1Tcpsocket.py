@@ -4,7 +4,7 @@ import socket, select
 import time
 
 TIMEOUT = 3 # unit is seconds
-BUF_SIZE = 1024 # unit is bytes
+BUF_SIZE = 8192 # unit is bytes
 
 class TCPsocket:
     def __init__(self):
@@ -76,6 +76,7 @@ class TCPsocket:
         try:
             while True:         # use a loop to receive data until we receive all data
                 data = self.sock.recv(BUF_SIZE)  # returned chunk of data with max length BUF_SIZE. data is in bytes
+                starttime = time.time()
                 if data == b'':  # if empty bytes
                    break
                 else:
@@ -86,6 +87,8 @@ class TCPsocket:
            # print("socket error in receive: {}".format(e))
             self.sock.close()
             self.sock = None
+        # delta = (time.time() - starttime) * 1000
+        # print('Average speed: %f\n\r'%(bytesRecd/1024/1024/delta))
         reply_str = reply.decode()
         return reply_str
 

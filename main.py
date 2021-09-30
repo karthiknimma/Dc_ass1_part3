@@ -45,6 +45,7 @@ def main():
     # shared.countUnique_ips = 0
     shared.unique_ips = set()
     shared.unique_host = set()
+    shared.pageSize = []
     shared.qsize = len(shared.hostnames)
 
     for i in range(num_threads):
@@ -60,6 +61,8 @@ def main():
     for t in listOfThreads:
         t.join()  # wait for each thread to finish
 
+
+
     print("Looked up", shared.dns_count , "DNS names")
     print('Number of crawled URLS', shared.count_crawl)
     print('Number of URLs that have passed robots checks', shared.count_robot)
@@ -70,6 +73,9 @@ def main():
 def printing(shared):
     while(len(shared.hostnames)>0):
         print('',threading.active_count()-2,'Q\t',len(shared.hostnames),'E\t',1000000-len(shared.hostnames),'H\t',shared.countUnique_host,'D\t',shared.dns_count,'I\t',shared.countUnique_ips,'R\t',shared.count_robot,'C\t',shared.count_crawl,'L\t',shared.count_link)
+        print('Average Page size:',sum(shared.pageSize)/len(shared.pageSize))
+
+
         time.sleep(2)
 
 
@@ -122,7 +128,39 @@ class sharedParameters:
         self.count_robot = 0
         self.qsize = 0
         self.dns_count = 0
+        self.pageSize = None
 
 # call main() method:
 if __name__ == "__main__":
     main()
+
+
+# LOGIC TO PRINT
+
+# TIME = (final-initial).total_seconds()
+# cycle = (end-start).total_seconds()
+#
+# print("[Time:" +str(int(TIME)) + "] Threads Active: "+str(threads) +
+#       "\nURLs left:  "+str(queue) + "URLs extracted:" + str(ext) + "\nHost checks: "+
+#       str(host) + "DNS lookup successes:" + str(DNS) + "IP checks passed:" + str(IP)+
+#       "Robots checks passed: " + str(robots) + "\nURLs crawled sucessfully: "+str(int(totalCrawled + crawled)) +
+#       "Links found:" + str(links)+ "\nCrawling" + str((crawled/cycle)) +
+#       "pps @"+ str(((bytes/100000)*8)/cycle)) + MBPS\n\n")
+#
+# totalExt += ext
+# totalByte += bytes
+# totalCrawled += crawled
+#
+# #ending prinout with final stats
+#
+# print("Extracted "+ str(totalExt) + "URLS at " +str(int(totalExt/TIME)) +
+#       "/s\nDid "+str(DNS) + "DNS lookups sucessfully at "+ str(int(DNS/TIME))+
+#       "/s\nPassed "+str(robots) + "robot checks at " + str(int(robots/TIME)) +
+#       "/s\nCrawled" + str(totalCrawled) + "pages at " + str(int(totalCrawled/TIME)) +
+#       "/s for a total of " + str((totalByte/100000.0) + "MB of data\nFound"+ str(links) +
+#       "links while parsing, at " + str(int(links)/TIME)) + "/s\n HTTP codes seen for GET: 2xx = " +
+#       str(codetwo) + ",3xx = " + str(codethree) + ", 4xx = " + str(codefour) + ", 5xx = "+ str(codefive) +
+#       ",other = " + str(codeother))
+
+
+

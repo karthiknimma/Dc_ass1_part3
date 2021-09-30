@@ -61,7 +61,8 @@ class myThread(threading.Thread):
 
             if ip:
                 self.shared.dns_count +=1
-
+            else:
+                continue
             self.shared.lock.acquire()
             # Check uniqueness IP
             unique_status = checkUniqueness_ip(self.shared.unique_ips, ip)
@@ -88,6 +89,7 @@ class myThread(threading.Thread):
             mysocket.send(msg)
             data = mysocket.receive()  # receive a reply from the server
             # print('Response content length: ', len(data), '')
+            self.shared.pageSize.append(len(data))
 
             if (len(data) == 0):
                # print("-------------------------------------------------------------------")
