@@ -35,7 +35,7 @@ class myThread(threading.Thread):
             # shared.qsize = len(shared.hostnames)
             #print ("Current size of queue:", self.shared.qsize)
             self.shared.qsize -=1
-
+            self.shared.extractedUrls += 1
             self.shared.lock.release()
 
             #urlsplit
@@ -96,6 +96,16 @@ class myThread(threading.Thread):
                 self.shared.lock.release()
                 continue
             x = data.split()
+            if(x[1].startswith('2')):
+                self.shared.codeTwo  += 1
+            elif(x[1].startswith('3')):
+                self.shared.codeThree  +=1
+            elif (x[1].startswith('4')):
+                self.shared.codeFour += 1
+            elif (x[1].startswith('5')):
+                self.shared.codeFive += 1
+            else:
+                self.shared.other +=1
             #print("Verifying header...status Code: ", x[1])
             mysocket.close()
 

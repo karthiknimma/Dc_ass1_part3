@@ -3,7 +3,7 @@
 import socket, select
 import time
 
-TIMEOUT = 3 # unit is seconds
+TIMEOUT = 2 # unit is seconds
 BUF_SIZE = 8192 # unit is bytes
 
 class TCPsocket:

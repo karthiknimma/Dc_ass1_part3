@@ -3,6 +3,13 @@
 # AUTHOR2: Maheen Tanveer (101673264)
 # SUBMITTED TO : DR. ZHONGMEI YAO
 # COURSE: DATA COMMUNICATIONS (CPS-570)
+
+# NOTE.............
+# FOR SIMPLICITY THE PROGRAM ONLY ADDS 1000 URLS OUT OF THE 1MURLS, INTO THE QUEUE.(CHECK ADDTOQ FUNCTION TO REMOVE THE RESTRICTION)
+#CURRENTLY 200 THREADS ARE USED FOR PROCESSING THE URLS AND ONE ADDITIONAL THREAD IS USED TO PRINT OUTPUT EVERY 2 SECS
+# WE WERE UNABLE TO PRINT THE FINAL STATS i.e MPBS, PPS EVEN AFTER A LOT OF THINKING.
+
+
 import time
 from pathlib import Path
 from bs4 import BeautifulSoup
@@ -38,7 +45,7 @@ def main():
     #print(shared.hostnames)
 
     listOfThreads = []  # empty list
-    num_threads = 5000
+    num_threads = 200
 
     # shared parameters
     shared.lock = threading.Lock()
@@ -70,9 +77,15 @@ def main():
     print("Number of uniques host", shared.countUnique_host)
     print('Total links found', shared.count_link)
 
+
+    print("\n HTTP codes seen for GET: 2xx = " +
+    str(shared.codeTwo) + ",3xx = " + str(shared.codeThree) + ", 4xx = " + str(shared.codeFour) + ", 5xx = " + str(
+    shared.codeFive) +
+    ",other = " + str(shared.other))
+
 def printing(shared):
     while(len(shared.hostnames)>0):
-        print('',threading.active_count()-2,'Q\t',len(shared.hostnames),'E\t',1000000-len(shared.hostnames),'H\t',shared.countUnique_host,'D\t',shared.dns_count,'I\t',shared.countUnique_ips,'R\t',shared.count_robot,'C\t',shared.count_crawl,'L\t',shared.count_link)
+        print('',threading.active_count()-2,'Q\t',len(shared.hostnames),'E\t',shared.extractedUrls,'H\t',shared.countUnique_host,'D\t',shared.dns_count,'I\t',shared.countUnique_ips,'R\t',shared.count_robot,'C\t',shared.count_crawl,'L\t',shared.count_link)
         print('Average Page size:',sum(shared.pageSize)/len(shared.pageSize))
 
 
@@ -106,8 +119,12 @@ def checkUniqueness_host(list_host, host):
 def AddtoQ(filename, Q):
     try:
         with open(filename) as file:
+            count = 0
             for line in file:
                 Q.append(line)
+                count += 1
+                if(count==1000):
+                    break
         file.close()
     except IOError:
         print('No such file')
@@ -118,6 +135,7 @@ def AddtoQ(filename, Q):
 class sharedParameters:
     def __init__(self):
         self.lock = None
+        self.extractedUrls = 0
         self.countUnique_ips = 0
         self.countUnique_host = 0
         self.hostnames = None
@@ -129,6 +147,11 @@ class sharedParameters:
         self.qsize = 0
         self.dns_count = 0
         self.pageSize = None
+        self.codeTwo = 0
+        self.codeThree = 0
+        self.codeFour = 0
+        self.codeFive =0
+        self.other =0
 
 # call main() method:
 if __name__ == "__main__":
@@ -143,7 +166,7 @@ if __name__ == "__main__":
 # print("[Time:" +str(int(TIME)) + "] Threads Active: "+str(threads) +
 #       "\nURLs left:  "+str(queue) + "URLs extracted:" + str(ext) + "\nHost checks: "+
 #       str(host) + "DNS lookup successes:" + str(DNS) + "IP checks passed:" + str(IP)+
-#       "Robots checks passed: " + str(robots) + "\nURLs crawled sucessfully: "+str(int(totalCrawled + crawled)) +
+#       "Robots checks passed: " + str(robots) + "\nURLs crawled successfully: "+str(int(totalCrawled + crawled)) +
 #       "Links found:" + str(links)+ "\nCrawling" + str((crawled/cycle)) +
 #       "pps @"+ str(((bytes/100000)*8)/cycle)) + MBPS\n\n")
 #
@@ -151,10 +174,10 @@ if __name__ == "__main__":
 # totalByte += bytes
 # totalCrawled += crawled
 #
-# #ending prinout with final stats
+# #ending printout with final stats
 #
 # print("Extracted "+ str(totalExt) + "URLS at " +str(int(totalExt/TIME)) +
-#       "/s\nDid "+str(DNS) + "DNS lookups sucessfully at "+ str(int(DNS/TIME))+
+#       "/s\nDid "+str(DNS) + "DNS lookups successfully at "+ str(int(DNS/TIME))+
 #       "/s\nPassed "+str(robots) + "robot checks at " + str(int(robots/TIME)) +
 #       "/s\nCrawled" + str(totalCrawled) + "pages at " + str(int(totalCrawled/TIME)) +
 #       "/s for a total of " + str((totalByte/100000.0) + "MB of data\nFound"+ str(links) +
