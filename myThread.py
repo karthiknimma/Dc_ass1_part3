@@ -129,31 +129,10 @@ class myThread(threading.Thread):
                 # print('Response content length: ', len(data), '`')
 
                 self.shared.count_link += data.count("href")
-                # print("Total links found:",self.shared.count_link)
-
-
-                # x = data.split()
-                # print("Verifying header...status Code: ", x[1])
-                #
-                #
-                # r = requests.get(url)
-                # start = time.time()
-                #
-                #
-                # soup = BeautifulSoup(r.text, "html.parser")
-                #
-                # try:
-                #     for link in soup.find_all('a'):
-                #         self.shared.count_link += 1
-                # except AttributeError:
-                #     continue
-                # # print('Parsing Page... Done in ', (time.time() - start) * 1000, 'ms', 'with', self.shared.count_link, 'links')
-
 
             else:
                 self.shared.count_robot += 1
 
-           # print("-------------------------------------------------------------------------------------------")
             mysocket.close()
 
             self.shared.lock.release()

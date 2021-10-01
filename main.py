@@ -5,9 +5,10 @@
 # COURSE: DATA COMMUNICATIONS (CPS-570)
 
 # NOTE.............
-# FOR SIMPLICITY THE PROGRAM ONLY ADDS 1000 URLS OUT OF THE 1MURLS, INTO THE QUEUE.(CHECK ADDTOQ FUNCTION TO REMOVE THE RESTRICTION)
-#CURRENTLY 200 THREADS ARE USED FOR PROCESSING THE URLS AND ONE ADDITIONAL THREAD IS USED TO PRINT OUTPUT EVERY 2 SECS
-# WE WERE UNABLE TO PRINT THE FINAL STATS i.e MPBS, PPS EVEN AFTER A LOT OF THINKING.
+    # FOR SIMPLICITY THE PROGRAM ONLY ADDS 1000 URLS OUT OF THE 1MURLS, INTO THE QUEUE.(CHECK ADDTOQ FUNCTION TO REMOVE THE RESTRICTION)
+    #CURRENTLY 200 THREADS ARE USED FOR PROCESSING THE URLS AND ONE ADDITIONAL THREAD IS USED TO PRINT OUTPUT EVERY 2 SECS
+    # WE WERE UNABLE TO PRINT THE  STATS i.e MPBS, PPS EVEN AFTER A LOT OF THINKING.
+    # Threads take some time to terminate, therefore the final output may take some time to print out.
 
 
 import time
@@ -60,7 +61,7 @@ def main():
             worker.start()
             listOfThreads.append(worker)
     t11= threading.Timer(2.0, printing, args=(shared,) )
-    t11.setDaemon(True)
+    # t11.setDaemon(True)
     t11.start()
     time.sleep(3)
     listOfThreads.append(t11)
@@ -76,6 +77,7 @@ def main():
     print("Number of uniques ips", shared.countUnique_ips)
     print("Number of uniques host", shared.countUnique_host)
     print('Total links found', shared.count_link)
+    print('Average Page size:', sum(shared.pageSize) / len(shared.pageSize))
 
 
     print("\n HTTP codes seen for GET: 2xx = " +
@@ -86,9 +88,9 @@ def main():
 def printing(shared):
     while(len(shared.hostnames)>0):
         print('',threading.active_count()-2,'Q\t',len(shared.hostnames),'E\t',shared.extractedUrls,'H\t',shared.countUnique_host,'D\t',shared.dns_count,'I\t',shared.countUnique_ips,'R\t',shared.count_robot,'C\t',shared.count_crawl,'L\t',shared.count_link)
-        print('Average Page size:',sum(shared.pageSize)/len(shared.pageSize))
-
-
+        # print('Average Page size:',sum(shared.pageSize)/len(shared.pageSize))
+        if (len(shared.hostnames) == 0):
+            break
         time.sleep(2)
 
 
@@ -158,32 +160,6 @@ if __name__ == "__main__":
     main()
 
 
-# LOGIC TO PRINT
-
-# TIME = (final-initial).total_seconds()
-# cycle = (end-start).total_seconds()
-#
-# print("[Time:" +str(int(TIME)) + "] Threads Active: "+str(threads) +
-#       "\nURLs left:  "+str(queue) + "URLs extracted:" + str(ext) + "\nHost checks: "+
-#       str(host) + "DNS lookup successes:" + str(DNS) + "IP checks passed:" + str(IP)+
-#       "Robots checks passed: " + str(robots) + "\nURLs crawled successfully: "+str(int(totalCrawled + crawled)) +
-#       "Links found:" + str(links)+ "\nCrawling" + str((crawled/cycle)) +
-#       "pps @"+ str(((bytes/100000)*8)/cycle)) + MBPS\n\n")
-#
-# totalExt += ext
-# totalByte += bytes
-# totalCrawled += crawled
-#
-# #ending printout with final stats
-#
-# print("Extracted "+ str(totalExt) + "URLS at " +str(int(totalExt/TIME)) +
-#       "/s\nDid "+str(DNS) + "DNS lookups successfully at "+ str(int(DNS/TIME))+
-#       "/s\nPassed "+str(robots) + "robot checks at " + str(int(robots/TIME)) +
-#       "/s\nCrawled" + str(totalCrawled) + "pages at " + str(int(totalCrawled/TIME)) +
-#       "/s for a total of " + str((totalByte/100000.0) + "MB of data\nFound"+ str(links) +
-#       "links while parsing, at " + str(int(links)/TIME)) + "/s\n HTTP codes seen for GET: 2xx = " +
-#       str(codetwo) + ",3xx = " + str(codethree) + ", 4xx = " + str(codefour) + ", 5xx = "+ str(codefive) +
-#       ",other = " + str(codeother))
 
 
 
